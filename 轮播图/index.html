@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>轮播图</title>
+        <style>
+            .gua-slide {
+                position: relative;
+                width: 1000px;
+                height: 700px;
+                margin: 0 auto;
+            }
+            .gua-slide-images {
+                position: relative;
+            }
+            .gua-slide-image {
+                position: absolute;
+                top: 0;
+                left: 0;
+                opacity: 0;
+                transition: opacity 1s;
+                width: 1000px;
+                height: 700px;
+            }
+            .gua-slide-image-active {
+                opacity: 1;
+            }
+            .gua-slide-button {
+                position: absolute;
+                height: 50px;
+                width: 30px;
+                color: #fff;
+                background: black;
+                opacity: 0.3;
+                border: none;
+                outline: none;
+                cursor: pointer;
+            }
+            .gua-slide-left {
+                left: 0;
+            }
+            .gua-slide-right {
+                right: 0;
+            }
+            .gua-vertical-center {
+                position: absolute;
+                top: 50%;
+                transform: translateY(-50%);
+            }
+            .gua-slide-dots {
+                position: absolute;
+                bottom: 10px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+            .gua-slide-dot {
+                display: inline-block;
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+                background: red;
+            }
+            .gua-dot-active {
+                background: white;
+            }
+        </style>
+    </head>
+    <body>
+    <div class="gua-slide" data-imgs="4" data-active="0">
+        <div class="gua-slide-images">
+            <img id="id-guaimage-0" class="gua-slide-image gua-slide-image-active" src="微信图片_20200614183259.jpg" alt="towers">
+            <img id="id-guaimage-1" class="gua-slide-image" src="微信图片_20200614184833.jpg" alt="stables">
+            <img id="id-guaimage-2" class="gua-slide-image" src="微信图片_20200614183252.jpg" alt="Shrines">
+            <img id="id-guaimage-3" class="gua-slide-image" src="QQ图片20200708212311.jpg" alt="villages">
+        </div>
+        <div class="gua-slide-buttons">
+            <button class="gua-slide-button gua-slide-left gua-vertical-center" data-offset="-1">&lt;</button>
+            <button class="gua-slide-button gua-slide-right gua-vertical-center" data-offset="1">&gt;</button>
+        </div>
+        <div class="gua-slide-dots">
+            <div id="id-dot-0" class="gua-slide-dot gua-dot-active" data-index="0"></div>
+            <div id="id-dot-1" class="gua-slide-dot" data-index="1"></div>
+            <div id="id-dot-2" class="gua-slide-dot" data-index="2"></div>
+            <div id="id-dot-3" class="gua-slide-dot" data-index="3"></div>
+        </div>
+    </div>
+
+        <script>
+
+            const log = console.log.bind(console)
+
+            const e = function(selector) {
+                let element = document.querySelector(selector)
+                if (element === null) {
+                    let s = `报错`
+                    alert(s)
+                    return null
+                } else {
+                    return element
+                }
+            }
+
+            const es = function(selector) {
+                let elements = document.querySelectorAll(selector)
+                if (elements.length === 0) {
+                    let s = `报错`
+                    alert(s)
+                    return []
+                } else {
+                    return elements
+                }
+            }
+            const appendHtml = function(element, html) {
+                element.insertAdjacentHTML('beforeend', html)
+            }
+
+            const bindEvent = function(element, eventName, callback) {
+                element.addEventListener(eventName, callback)
+            }
+
+            const removeClassAll = function(className) {
+                let selector = '.' + className
+                let elements = es(selector)
+                for (let i = 0; i < elements.length; i++) {
+                    let e = elements[i]
+                    e.classList.remove(className)
+                }
+            }
+
+            const bindAll = function(selector, eventName, callback) {
+                let elements = es(selector)
+                for (let i = 0; i < elements.length; i++) {
+                    let e = elements[i]
+                    bindEvent(e, eventName, callback)
+                }
+            }
+
+
+            const nextIndex = function(slide, offset) {
+                let numberOfImgs = parseInt(slide.dataset.imgs, 10)
+                let activeIndex = Number(slide.dataset.active)
+                let i = (activeIndex + offset + numberOfImgs) % numberOfImgs
+                return i
+            }
+
+            // 显示第 n 张图片
+            const showImageAtIndex = function(slide, index) {
+                let className = 'gua-slide-image-active'
+                removeClassAll(className)
+                let nextSelector = '#id-guaimage-' + String(index)
+                let img = e(nextSelector)
+                img.classList.add(className)
+            }
+
+            // 显示第 n 个小圆点
+            const showDotAtIndex = function(slide, index) {
+                let className = 'gua-dot-active'
+                removeClassAll(className)
+                let dotSelector = '#id-dot-' + String(index)
+                let dot = e(dotSelector)
+                dot.classList.add(className)
+            }
+
+            // 显示第 n 个
+            const showAtIndex = function(slide, index) {
+                slide.dataset.active = String(index)
+                showImageAtIndex(slide, index)
+                showDotAtIndex(slide, index)
+            }
+
+            const bindEventSlide = function() {
+                let selector = '.gua-slide-button'
+                bindAll(selector, 'click', function(event) {
+                    let self = event.target
+                    let slide = self.closest('.gua-slide')
+                    let offset = Number(self.dataset.offset)
+                    let index = nextIndex(slide, offset)
+                    showAtIndex(slide, index)
+                })
+            }
+
+
+            const bindXyd = function() {
+                let selector = '.gua-slide-dot'
+                bindAll(selector, 'click', function(event) {
+                    let self = event.target
+                    let index = Number(self.dataset.index)
+                    let slide = self.closest('.gua-slide')
+                    showAtIndex(slide, index)
+                })
+            }
+
+
+            // 一开始自动播放下一张图片
+            const playNextImage = function() {
+                let slide = e('.gua-slide')
+                // 求出下一张图片的 index
+                let index = nextIndex(slide, 1)
+                // 显示下一张图片和下一个小圆点
+                showAtIndex(slide, index)
+            }
+
+            const autoPlay = function() {
+                let interval = 2000
+                setInterval(function() {
+                    playNextImage()
+                }, interval)
+            }
+
+            const bindEvents = function() {
+                bindEventSlide()
+                // bindEventDot()
+            }
+
+
+            const __main = function() {
+                bindEvents()
+                bindXyd()
+                autoPlay()
+            }
+
+            __main()
+
+
+
+        </script>
+    </body>
+</html>
